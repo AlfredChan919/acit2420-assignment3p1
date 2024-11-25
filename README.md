@@ -14,7 +14,7 @@ The benefit of creating a system user rather than a regular user or root is so w
 
 1. Enter the following command to create a system user with a custom home directory path with a non-login user shell:
 
-`sudo useradd -r -d /var/lib/webgen -s /usr/sbin/nologin webgen`
+    `sudo useradd -r -d /var/lib/webgen -s /usr/sbin/nologin webgen`
 
 -r: Creates a system account
 
@@ -26,9 +26,20 @@ Typically, the creation of a system user does not have a home directory, therefo
 
 2. Create the actual home directory for the webgen user since it doesn't exist yet by entering the command:
 
-`sudo mkdir -p /var/lib/webgen`
+    `sudo mkdir -p /var/lib/webgen`
 
+3. Create the subdirectories needed for this script using the command:
 
+    `sudo mkdir -p /var/lib/webgen/bin /var/lib/webgen/HTML`
+
+4. Change the ownership of the dictories to webgen using the command:
+
+    `sudo chown -R webgen:webgen /var/lib/webgen`
+
+-R: Recursive. It will iterate through all the files in the directory
+
+5. 
+ 
 
 
 ## References
