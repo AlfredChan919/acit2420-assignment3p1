@@ -147,11 +147,20 @@ Then create a new server block inside the file by copying and pasting the follow
             }
         }
 
+`listen 80` and `listen [::]:80` listens for incoming connections on both IPv4 and IPv6 on port 80 for the domain name `local_host.webgen`.
+
+`server_name` is the domain name we declared.
+
+`root` signifies where we should look in order to find the file to host in response to the request that we received. So we will look at the `/var/lib/webgen/HTML` directory.
+
+`index` signifies the file is 
+
 By completing steps 4 and 5 and separating the server files from the config file, it allows us to have some modularity in the code and be able to turn off and on each server that we want by creating symlinks between sites-enabled and sites-available.
 
+6. 
 
 
 ## References
 man useradd
-man su
 https://wiki.archlinux.org/title/Users_and_groups
+https://wiki.archlinux.org/title/Nginx
