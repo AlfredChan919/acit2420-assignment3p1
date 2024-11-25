@@ -5,12 +5,12 @@ This README will instruct you on setting up a Bash script that generates a stati
 
 ## Table of Contents
 
-## Setting Up New System User
+## Setting Up New System User and Files
 Before we begin, we need to create a system user called `webgen` with a home directory at `/var/lib/webgen` and a login shell for a non-user.
 
 The benefit of creating a system user rather than a regular user or root is so we can separate our files and other directories from our current user to prevent malicious attacks using something like the `chown` command. As for using system user instead of root, it prevents an attack from taking advantage of the elevated privileges within our system.
 
-### Set Up System User
+### Step 1: Set Up System User
 
 1. Enter the following command to create a system user with a custom home directory path with a non-login user shell:
 
@@ -32,15 +32,37 @@ Typically, the creation of a system user does not have a home directory, therefo
 
     `sudo mkdir -p /var/lib/webgen/bin /var/lib/webgen/HTML`
 
-4. Change the ownership of the dictories to webgen using the command:
+
+4. Clone this repository and move the generate_script using the following commands:
+    
+    `git clone https://github.com/AlfredChan919/acit2420-assignment3p1.git`
+ 
+    `sudo mv /acit2420-assignment3p1/generate_index /var/lib/webgen/bin/generate_index`
+
+5. Give generate_script the permission to execute the script by entering the following command:
+
+    `sudo chmod +x /var/lib/webgen/bin/generate_index`
+
+6. Create the index.html file in the `/var/lib/webgen/HTML` folder by entering the command:
+
+    `sudo nvim /var/lib/webgen/HTML/index.html`
+
+7. Change the ownership of the files and dictories to webgen using the command:
 
     `sudo chown -R webgen:webgen /var/lib/webgen`
 
 -R: Recursive. It will iterate through all the files in the directory
 
-5. 
- 
+## Step 2: Unit File Configuration
 
+We will need a .service file in order to execute our script as well as a .timer file to execute it at 5:00 AM every day.
+
+1. Move the service files in the cloned repo to the /etc/systemd/system directory
+
+Enter the commands:
+
+`sudo mv /acit2420-assignment3p1/generate-index.service /etc/systemd/system/generate-index
+`sudo mv /acit2420-assignment3p1/generate-index.timer
 
 ## References
 man useradd
