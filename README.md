@@ -153,7 +153,7 @@ Then create a new server block inside the file by copying and pasting the follow
 
 `root` signifies where we should look in order to find the file to host in response to the request that we received. So we will look at the `/var/lib/webgen/HTML` directory.
 
-`index` signifies the file is 
+`index` signifies the file to serve to the user when the directory is accessed.
 
 By completing steps 4 and 5 and separating the server files from the config file, it allows us to have some modularity in the code and be able to turn off and on each server that we want by creating symlinks between sites-enabled and sites-available.
 
