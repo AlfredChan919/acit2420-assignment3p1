@@ -10,7 +10,7 @@ Before we begin, we need to create a system user called `webgen` with a home dir
 
 The benefit of creating a system user rather than a regular user or root is so we can separate our files and other directories from our current user to prevent malicious attacks using something like the `chown` command. As for using system user instead of root, it prevents an attack from taking advantage of the elevated privileges within our system.
 
-### Step 1: Set Up System User
+## Step 1: Set Up System User
 
 1. Enter the following command to create a system user with a custom home directory path with a non-login user shell:
 
@@ -37,7 +37,7 @@ Typically, the creation of a system user does not have a home directory, therefo
     
     `git clone https://github.com/AlfredChan919/acit2420-assignment3p1.git`
  
-    `sudo mv ~/acit2420-assignment3p1/generate_index /var/lib/webgen/bin/generate_index`
+    `sudo cp ~/acit2420-assignment3p1/generate_index /var/lib/webgen/bin/`
 
 5. Give generate_script the permission to execute the script by entering the following command:
 
@@ -87,9 +87,35 @@ Then paste the following inside and save it:
     [Install]
     WantedBy=timers.target
 
+2. Enable the timer on startup by entering the command:
+
+`sudo systemctl enable generate-index.timer`
+
+3. Start the timer by entering the command:
+
+`sudo systemctl start generate-index.timer`
+
+We can check if the timer is active by typing the command: 
+
+`sudo systemctl status generate-index.timer`
+
+To test our service is working, type 
+
+`sudo systemctl start generate-index.service`
+
+If successful, we can check by entering: `systemctl status generate-index.service` and checking the logs.
+
+## Step 3: Nginx Configuration
+
+1. Install Nginx
+
+Enter the command:
+
+`sudo pacman -S nginx`
+
 
 
 ## References
 man useradd
-
+man su
 https://wiki.archlinux.org/title/Users_and_groups
