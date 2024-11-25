@@ -123,7 +123,15 @@ Enter the command to install Nginx:
 
 The reason we put 2 webgen is because the first webgen states the user, and the second webgen states the usergroup.
 
-4. Create a new server block inside the code by copying and pasting the following:
+4. Create 2 new directories called "sites-available" and "sites-enabled" inside `/etc/nginx` by entering the commands:
+
+`sudo mkdir -p /etc/nginx/sites-available` and `sudo mkdir -p /etc/nginx/sites-enabled`
+
+5. Now, we will create a separate file for webgen inside "sites-available".
+
+Enter the command: `sudo nvim /etc/nginx/sites-available/webgen`
+
+Then create a new server block inside the file by copying and pasting the following:
 
         server {
             listen 80;
@@ -138,6 +146,9 @@ The reason we put 2 webgen is because the first webgen states the user, and the 
                 try_files $uri $uri/ =404;
             }
         }
+
+By completing steps 4 and 5 and separating the server files from the config file, it allows us to have some modularity in the code and be able to turn off and on each server that we want by creating symlinks between sites-enabled and sites-available.
+
 
 
 ## References
