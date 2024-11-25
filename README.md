@@ -33,11 +33,11 @@ Typically, the creation of a system user does not have a home directory, therefo
     `sudo mkdir -p /var/lib/webgen/bin /var/lib/webgen/HTML`
 
 
-4. Clone this repository and move the generate_script using the following commands:
+4. Clone this repository to your home directory and move the generate_script using the following commands:
     
     `git clone https://github.com/AlfredChan919/acit2420-assignment3p1.git`
  
-    `sudo mv /acit2420-assignment3p1/generate_index /var/lib/webgen/bin/generate_index`
+    `sudo mv ~/acit2420-assignment3p1/generate_index /var/lib/webgen/bin/generate_index`
 
 5. Give generate_script the permission to execute the script by entering the following command:
 
@@ -57,13 +57,37 @@ Typically, the creation of a system user does not have a home directory, therefo
 
 We will need a .service file in order to execute our script as well as a .timer file to execute it at 5:00 AM every day.
 
-1. Move the unit files in the cloned repo to the /etc/systemd/system directory
+1. Create the unit files in the /etc/systemd/system directory as a sudouser or as root. Enter the command:
 
-Enter the commands:
+`sudo nvim /etc/systemd/system/generate-index.service`
 
-`sudo mv /acit2420-assignment3p1/generate-index.service /etc/systemd/system/generate-index.service`
+and paste the following into the file and save it:
 
-`sudo mv /acit2420-assignment3p1/generate-index.timer /etc/systemd/service/generate-index.timer`
+    [Unit]
+    Description=Generate static index.html
+
+    [Service]
+    Type=oneshot
+    User=webgen
+    Group=webgen
+    ExecStart=/var/lib/webgen/bin/generate_index
+
+Next, create the timer unit file by entering the command:
+
+`sudo nvim /etc/systemd/system/generate-index.timer`
+
+Then paste the following inside and save it:
+
+    [Unit]
+    Description=Run daily at 05:00 that creates a static HTML page
+
+    [Timer]
+    OnCalendar=05:00
+    Persistent=true
+    [Install]
+    WantedBy=timers.target
+
+
 
 ## References
 man useradd
