@@ -5,10 +5,19 @@ This README will instruct you on setting up a Bash script that generates a stati
 
 ## Table of Contents
 
+1. [Introduction](#introduction)
+2. [Setting Up New System User and Files](#setting-up-new-system-user-and-files)
+3. [Step 1: Set Up System User](#step-1-set-up-system-user)
+4. [Step 2: Unit File Configuration](#step-2-unit-file-configuration)
+5. [Step 3: Nginx Configuration](#step-3-nginx-configuration)
+6. [Step 4: Setting Up UFW](#step-4-setting-up-ufw)
+7. [Step 5: Verifying the Configuration](#step-5-verifying-the-configuration)
+8. [References](#references)
+
 ## Setting Up New System User and Files
 Before we begin, we need to create a system user called `webgen` with a home directory at `/var/lib/webgen` and a login shell for a non-user.
 
-The benefit of creating a system user rather than a regular user or root is so we can separate our files and other directories from our current user to prevent malicious attacks using something like the `chown` command. As for using system user instead of root, it prevents an attack from taking advantage of the elevated privileges within our system.
+The benefit of creating a system user rather than a regular user or root is so we can separate our files and other directories from our current user to prevent malicious attacks using something like the `chown` command. As for using system user instead of root, it prevents an attack from taking advantage of the elevated privileges within our system.[1][2]
 
 ## Step 1: Set Up System User
 
@@ -22,7 +31,7 @@ The benefit of creating a system user rather than a regular user or root is so w
 
 -s: Specifies the user's login shell. In our case, `/usr/sbin/nologin` means a no interactive login user shell
 
-Typically, the creation of a system user does not have a home directory, therefore by stating -d, we create a path to the home directory.
+Typically, the creation of a system user does not have a home directory, therefore by stating -d, we create a path to the home directory.[1]
 
 2. Create the actual home directory for the webgen user since it doesn't exist yet by entering the command:
 
@@ -113,15 +122,29 @@ Enter the command to install Nginx:
 
 `sudo pacman -S nginx`
 
-2. To modify the `nginx.conf` file, enter:
+2. Modify the `nginx.conf` file, enter:
 
 `sudo nvim /etc/nginx/nginx.conf`
 
-3. Change the `user` to webgen at the top of the file. It should look like:
+Change the `user` to webgen at the top of the file. It should look like:
 
         user webgen webgen;
 
 The reason we put 2 webgen is because the first webgen states the user, and the second webgen states the usergroup.
+
+Next, inside the http block, add:
+        
+        http{
+            include /etc/nginx/sites-enabled/*;
+        }
+
+This will load in the configuration files. We will create the directories and its files in the next few steps.
+
+3. Checking your `nginx.conf` file
+
+Make sure there are no errors with the file using the command:
+
+`sudo nginx -t`
 
 4. Create 2 new directories called "sites-available" and "sites-enabled" inside `/etc/nginx` by entering the commands:
 
@@ -153,14 +176,97 @@ Then create a new server block inside the file by copying and pasting the follow
 
 `root` signifies where we should look in order to find the file to host in response to the request that we received. So we will look at the `/var/lib/webgen/HTML` directory.
 
-`index` signifies the file to serve to the user when the directory is accessed.
+`index` signifies the file to serve to the user when the directory is accessed. In our case, the default file `index.html` will be served.
+
+`location /` block chooses how to handle the request based on the URL. In our case, the / path means it handles requests sent to `http://local_host.webgen/`
+
+`try_files $uri $uri/ =404` will check if the requested file is found and hosts it, if not, it will return a 404 error.
 
 By completing steps 4 and 5 and separating the server files from the config file, it allows us to have some modularity in the code and be able to turn off and on each server that we want by creating symlinks between sites-enabled and sites-available.
 
-6. 
+6. Enable Server Block
 
+Now that we have created the server block, we will enable it by creating a symlink from the server block file to the `/etc/nginx/sites-enabled` directory. We will then add the sites-enabled files to the `nginx.conf` file to enable it. 
 
-## References
-man useradd
-https://wiki.archlinux.org/title/Users_and_groups
-https://wiki.archlinux.org/title/Nginx
+Enter the command: `sudo ln -s /etc/nginx/sites-available/webgen /etc/nginx/sites-enabled/`
+
+7. Restart your nginx service
+
+After all the changes, we must restart our Nginx service. Enter the command:
+
+`sudo systemctl restart nginx`
+
+Check that Nginx service is working as intended by entering:
+
+`systemctl status nginx`
+
+**Note:** You may receive the error "Could not build optimal types_hash". Refer to section 6.4 of the https://wiki.archlinux.org/title/Nginx wiki page.
+
+## Step 4: Setting Up UFW
+
+We will now set up the Uncomplicated Firewall (UFW) to help secure our server.
+
+1. Install UFW
+
+Enter the command: `sudo pacman -S ufw`
+
+2. Enable HTTP and SSH connections
+
+Enter the commands: `sudo ufw allow SSH` and `sudo ufw allow http`
+
+3. Enable SSH rate limiting
+
+Enter the command: `sudo ufw limit SSH`
+
+By limiting the SSH rate, the UFW will deny connections from an IP address that has attempted to initiate 6 or more connections in the last 30 seconds.
+
+4. Enable the UFW
+
+**WARNING**: Do not do this if you have not completed steps 2 and 3, otherwise you will not be able to access the server anymore.
+
+Enter the command: `sudo ufw enable`
+
+**Note:** You can check your firewall status by entering the command:
+
+`sudo ufw status`
+
+You will be presented with an output such as:
+
+    Status: active
+
+    To                         Action      From
+    --                         ------      ----
+    SSH                        LIMIT       Anywhere
+    80                         ALLOW       Anywhere
+    SSH (v6)                   LIMIT       Anywhere (v6)
+    80 (v6)                    ALLOW       Anywhere (v6)
+
+If it says Status: active, then congratulations! Your firewall is now operational.
+
+## Step 5: Verifying the Configuration
+
+To Verify the website is working, we need to get the IP address from our droplet on Digital Ocean.
+
+1. On DigitalOcean, open the droplets menu from the left and copy the IPv4 Address
+
+![dropletimage](droplets_ip_image.png)
+
+2. In your browser, enter the IP address in your URL bar and enter it. If successful, the output should look like this:
+
+![successimage](success_image.png)
+
+Congratulations!, you have successfully configured your Nginx web server to host a static HTML that updates every day at 5:00 AM UTC, and you also successfully secured your server using UFW!.
+
+# References
+
+[1] "useradd(8) - Linux manual page," *man useradd*. [Online]. Available: https://man7.org/linux/man-pages/man8/useradd.8.html. [Accessed: Nov. 19, 2024].
+
+[2] ArchWiki, "Users and groups," *Arch Linux Wiki*. [Online]. Available: https://wiki.archlinux.org/title/Users_and_groups. [Accessed: Nov. 19, 2024].
+
+[3] DigitalOcean, "Understanding Systemd Units and Unit Files," *DigitalOcean Community Tutorials*. [Online]. Available: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files. [Accessed: Nov. 24, 2024].
+
+[4] ArchWiki, "Nginx," *Arch Linux Wiki*. [Online]. Available: https://wiki.archlinux.org/title/Nginx. [Accessed: Nov. 19, 2024].
+
+[5] "Understanding Nginx Server and Location Block Selection Algorithms," *DigitalOcean Community Tutorials*. [Online]. Available: https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms. [Accessed: Nov. 24, 2024].
+
+[6] ArchWiki, "Uncomplicated Firewall," *Arch Linux Wiki*. [Online]. Available: https://wiki.archlinux.org/title/Uncomplicated_Firewall. [Accessed: Nov. 24, 2024].
