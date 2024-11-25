@@ -60,11 +60,11 @@ Typically, the creation of a system user does not have a home directory, therefo
 
     `sudo chown -R webgen:webgen /var/lib/webgen`
 
--R: Recursive. It will iterate through all the files in the directory
+-R: Recursive. It will iterate through all the files in the directory.[3]
 
 ## Step 2: Unit File Configuration
 
-We will need a .service file in order to execute our script as well as a .timer file to execute it at 5:00 AM every day.
+We will need a .service file in order to execute our script as well as a .timer file to execute it at 5:00 AM every day.[4]
 
 1. Create the unit files in the /etc/systemd/system directory as a sudouser or as root. Enter the command:
 
@@ -112,7 +112,7 @@ To test our service is working, type
 
 `sudo systemctl start generate-index.service`
 
-If successful, we can check by entering: `systemctl status generate-index.service` and checking the logs.
+If successful, we can check by entering: `systemctl status generate-index.service` and checking the logs.[4]
 
 ## Step 3: Nginx Configuration
 
@@ -138,7 +138,7 @@ Next, inside the http block, add:
             include /etc/nginx/sites-enabled/*;
         }
 
-This will load in the configuration files. We will create the directories and its files in the next few steps.
+This will load in the configuration files. We will create the directories and its files in the next few steps.[5]
 
 3. Checking your `nginx.conf` file
 
@@ -170,7 +170,7 @@ Then create a new server block inside the file by copying and pasting the follow
             }
         }
 
-`listen 80` and `listen [::]:80` listens for incoming connections on both IPv4 and IPv6 on port 80 for the domain name `local_host.webgen`.
+`listen 80` and `listen [::]:80` listens for incoming connections on both IPv4 and IPv6 on port 80 for the domain name `local_host.webgen`.[5][6]
 
 `server_name` is the domain name we declared.
 
@@ -180,7 +180,7 @@ Then create a new server block inside the file by copying and pasting the follow
 
 `location /` block chooses how to handle the request based on the URL. In our case, the / path means it handles requests sent to `http://local_host.webgen/`
 
-`try_files $uri $uri/ =404` will check if the requested file is found and hosts it, if not, it will return a 404 error.
+`try_files $uri $uri/ =404` will check if the requested file is found and hosts it, if not, it will return a 404 error.[6]
 
 By completing steps 4 and 5 and separating the server files from the config file, it allows us to have some modularity in the code and be able to turn off and on each server that we want by creating symlinks between sites-enabled and sites-available.
 
@@ -200,7 +200,7 @@ Check that Nginx service is working as intended by entering:
 
 `systemctl status nginx`
 
-**Note:** You may receive the error "Could not build optimal types_hash". Refer to section 6.4 of the https://wiki.archlinux.org/title/Nginx wiki page.
+**Note:** You may receive the error "Could not build optimal types_hash". Refer to section 6.4 of the https://wiki.archlinux.org/title/Nginx wiki page.[5]
 
 ## Step 4: Setting Up UFW
 
@@ -218,7 +218,7 @@ Enter the commands: `sudo ufw allow SSH` and `sudo ufw allow http`
 
 Enter the command: `sudo ufw limit SSH`
 
-By limiting the SSH rate, the UFW will deny connections from an IP address that has attempted to initiate 6 or more connections in the last 30 seconds.
+By limiting the SSH rate, the UFW will deny connections from an IP address that has attempted to initiate 6 or more connections in the last 30 seconds.[7]
 
 4. Enable the UFW
 
@@ -263,10 +263,12 @@ Congratulations!, you have successfully configured your Nginx web server to host
 
 [2] ArchWiki, "Users and groups," *Arch Linux Wiki*. [Online]. Available: https://wiki.archlinux.org/title/Users_and_groups. [Accessed: Nov. 19, 2024].
 
-[3] DigitalOcean, "Understanding Systemd Units and Unit Files," *DigitalOcean Community Tutorials*. [Online]. Available: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files. [Accessed: Nov. 24, 2024].
+[3] Linux Foundation, "chown - Change file owner and group," *Linux Man Pages*, 2024. [Online]. Available: https://man7.org/linux/man-pages/man1/chown.1.html. [Accessed: Nov. 24, 2024].
 
-[4] ArchWiki, "Nginx," *Arch Linux Wiki*. [Online]. Available: https://wiki.archlinux.org/title/Nginx. [Accessed: Nov. 19, 2024].
+[4] DigitalOcean, "Understanding Systemd Units and Unit Files," *DigitalOcean Community Tutorials*. [Online]. Available: https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files. [Accessed: Nov. 24, 2024].
 
-[5] "Understanding Nginx Server and Location Block Selection Algorithms," *DigitalOcean Community Tutorials*. [Online]. Available: https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms. [Accessed: Nov. 24, 2024].
+[5] ArchWiki, "Nginx," *Arch Linux Wiki*. [Online]. Available: https://wiki.archlinux.org/title/Nginx. [Accessed: Nov. 19, 2024].
 
-[6] ArchWiki, "Uncomplicated Firewall," *Arch Linux Wiki*. [Online]. Available: https://wiki.archlinux.org/title/Uncomplicated_Firewall. [Accessed: Nov. 24, 2024].
+[6] "Understanding Nginx Server and Location Block Selection Algorithms," *DigitalOcean Community Tutorials*. [Online]. Available: https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms. [Accessed: Nov. 24, 2024].
+
+[7] ArchWiki, "Uncomplicated Firewall," *Arch Linux Wiki*. [Online]. Available: https://wiki.archlinux.org/title/Uncomplicated_Firewall. [Accessed: Nov. 24, 2024].
