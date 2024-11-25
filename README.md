@@ -57,12 +57,13 @@ Typically, the creation of a system user does not have a home directory, therefo
 
 We will need a .service file in order to execute our script as well as a .timer file to execute it at 5:00 AM every day.
 
-1. Move the service files in the cloned repo to the /etc/systemd/system directory
+1. Move the unit files in the cloned repo to the /etc/systemd/system directory
 
 Enter the commands:
 
-`sudo mv /acit2420-assignment3p1/generate-index.service /etc/systemd/system/generate-index
-`sudo mv /acit2420-assignment3p1/generate-index.timer
+`sudo mv /acit2420-assignment3p1/generate-index.service /etc/systemd/system/generate-index.service`
+
+`sudo mv /acit2420-assignment3p1/generate-index.timer /etc/systemd/service/generate-index.timer`
 
 ## References
 man useradd
