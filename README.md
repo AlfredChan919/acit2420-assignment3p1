@@ -109,10 +109,35 @@ If successful, we can check by entering: `systemctl status generate-index.servic
 
 1. Install Nginx
 
-Enter the command:
+Enter the command to install Nginx:
 
 `sudo pacman -S nginx`
 
+2. To modify the `nginx.conf` file, enter:
+
+`sudo nvim /etc/nginx/nginx.conf`
+
+3. Change the `user` to webgen at the top of the file. It should look like:
+
+        user webgen webgen;
+
+The reason we put 2 webgen is because the first webgen states the user, and the second webgen states the usergroup.
+
+4. Create a new server block inside the code by copying and pasting the following:
+
+        server {
+            listen 80;
+            listen [::]:80;
+
+            server_name local_host.webgen;
+
+            root /var/lib/webgen/HTML;
+            index index.html;
+
+                location / {
+                try_files $uri $uri/ =404;
+            }
+        }
 
 
 ## References
